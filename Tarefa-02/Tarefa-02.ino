@@ -20,7 +20,7 @@ void setup() {
 }
 
 void loop() {
-  unsigned long now = millis();
+  now = millis();
   Serial.println(tempo);
   if(tempo < 0) {
     tempo = 0;
