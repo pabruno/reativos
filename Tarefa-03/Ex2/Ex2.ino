@@ -59,7 +59,7 @@ void loop(){
 
   if(butDiminui && butAumenta) {
     if(UltAumenta - UltDiminui < 500){
-      digitalWrite(RedPin,HIGH);
+      button_changed(0,0);
       while(1);
     }
   }
@@ -75,9 +75,12 @@ void button_changed(int pin, int v) {
     tempo -= 10;
     UltAumenta = now;
   }
-  else {
+  else if(pin == butPinDiminui) {
     tempo += 10;
     UltDiminui = now;
+  }
+  else {
+    digitalWrite(RedPin,HIGH);
   }
 }
 
