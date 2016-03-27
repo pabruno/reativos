@@ -8,6 +8,7 @@ int UltAumenta = 0;
 int UltDiminui = 0;
 int tempo = 1000;
 int state = 1;
+int tempo_change;
 unsigned long old;
 unsigned long now;
 
@@ -72,15 +73,14 @@ void loop(){
 
 void button_changed(int pin, int v) {
   if(pin == butPinAumenta){
-    tempo -= 10;
+    tempo_change = -10;
+    timer_set(tempo_change);
     UltAumenta = now;
   }
-  else if(pin == butPinDiminui) {
-    tempo += 10;
-    UltDiminui = now;
-  }
   else {
-    digitalWrite(RedPin,HIGH);
+    tempo_change = 10;
+    timer_set(tempo_change);
+    UltDiminui = now;
   }
 }
 
