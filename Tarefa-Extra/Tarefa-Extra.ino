@@ -17,22 +17,29 @@ void loop() {
   Serial.print("Temperatura: ");
   Serial.println(temp);
 
-  if(temp > 0.0 && temp < 33) {
+  if(temp > 0.0 && temp <= 28) {
     digitalWrite(OrangePin,HIGH);
   }
-  else if (temp < 0.0) {
+  else if(temp < 28) {
+    digitalWrite(YellowPin,LOW);
+    digitalWrite(RedPin,LOW);
+  }
+  
+  if (temp < 0.0) {
     digitalWrite(OrangePin,LOW);
+    digitalWrite(YellowPin,LOW);
+    digitalWrite(RedPin,LOW);
   }
 
-  if(temp > 33 && temp < 36) {
+  if(temp > 28 && temp <= 30) {
     digitalWrite(OrangePin,HIGH);
     digitalWrite(YellowPin,HIGH);
   }
-  else if(temp < 36) {
+  else if(temp < 30) {
     digitalWrite(YellowPin,LOW);
   }
 
-  if(temp > 36) {
+  if(temp > 30) {
     digitalWrite(OrangePin,HIGH);
     digitalWrite(YellowPin,HIGH);
     digitalWrite(RedPin,HIGH);
