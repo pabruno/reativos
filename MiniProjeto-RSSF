@@ -1,0 +1,85 @@
+#include "/home/terra/TerraNG/terra/TerraNet.defs"
+
+var ushort nodeId, pai, num_msg, distancia;
+var ubyte fila, respostaSend, repeat;
+
+pktype usrMsg from radioMsg with
+	var ubyte[4] d8;
+	var ushort[4] d16;
+	var ulong[2] d32;
+end
+
+var usrMsg pai_msg, mensagem, recebida, enviar;
+
+nodeId = getNodeId();
+
+if nodeId == 11 then
+	pai_msg.target = BROADCAST;
+	pai_msg.source = 11;
+	pai_msg.type = 1;
+	distancia = 1;
+	pai_msg.d16[0] = distancia;
+	pai = 1;
+	emit SEND(pai_msg);
+	await SEND_DONE(1);
+else/if nodeId != 1 then
+	pai_msg = await RECEIVE(1);
+	pai = pai_msg.source;
+	pai_msg.source = nodeId;
+	inc pai_msg.d16[0];
+	distancia = pai_msg.d16[0];
+	emit SEND(pai_msg);
+	await SEND_DONE(1);
+end
+
+num_msg = 0;
+
+if distancia > 8 then
+	distancia = nodeId % 8;
+end
+
+par do
+	loop do
+		par/and do
+			mensagem.source = nodeId;
+			mensagem.target = pai;
+			mensagem.type = 2;
+			inc num_msg;
+			mensagem.d16[1] = num_msg;
+	
+			emit REQ_TEMP();
+			mensagem.d16[0] = await TEMP;
+		
+			await ( (2*distancia) + (nodeId % 5) )s;
+			fila = qPut(mensagem);
+		with
+			await 20s;
+		end
+	end
+with
+	loop do
+		recebida = await RECEIVE(2);
+		recebida.target = pai;
+		fila = qPut(recebida);
+	end
+with
+	loop do
+		await Q_READY;
+		loop do
+			if qSize() != 0 then
+				fila = qGet(enviar);
+				loop do
+					repeat = 0;
+					emit SEND_ACK(enviar);
+					respostaSend = await SEND_DONE_ACK(2);
+					inc repeat;
+					if respostaSend == 1 or repeat == 3 then
+						break;
+					end
+				end
+			else
+				break;
+			end
+		end
+	end
+end
